@@ -5,6 +5,7 @@ from textual.containers import Horizontal
 from textual.widgets import Static, Log
 from textual.reactive import reactive
 from textual import work
+from rich.text import Text
 import network
 import parser
 
@@ -14,7 +15,7 @@ class LogPanel(Log):
     def on_mount(self) -> None:
         """Called when the widget is mounted"""
         self.write("PurpleAir Monitor Starting...")
-        self.write("Waiting for sensor data...")
+        self.write("\n\nWaiting for sensor data...")
 
 class ValuePanel(Static):
     """Panel for displaying sensor values"""
@@ -24,7 +25,7 @@ class ValuePanel(Static):
     def watch_values(self, values: dict) -> None:
         """Called when values change"""
         if not values:
-            self.update("No sensor data available")
+            self.update("\n\nNo sensor data available")
             return
             
         content = "SENSOR VALUES:\n\n"
@@ -59,22 +60,24 @@ class PurpleAirMonitor(App):
         def data_callback(data: dict):
             """Callback for sensor data"""
             if "error" in data:
-                self.log_panel.write(f"ERROR: {data['error']}")
+                self.log_panel.write(f"\n\nERROR: {data['error']}")
                 # Don't try to parse error data
-                self.value_panel.values = {"Status": "Connection Error", "Error": data['error']}
+                self.value_panel.values = {"\n\nStatus": "Connection Error", "\n\n  Error": data['error']}
                 return
                 
             # Parse the data
+            self.log_panel.write(f"\n\nDEBUG: {data}")
+
             parsed_data = parser.parse_data(data)
             self.sensor_data = parsed_data
             
             # Update UI
             self.value_panel.values = parsed_data
-            self.log_panel.write(f"Received data: {len(parsed_data)} values")
+            self.log_panel.write(f"\n\nReceived data: {len(parsed_data)} values")
             
         def debug_callback(message: str):
             """Callback for debug messages"""
-            self.log_panel.write(f"DEBUG: {message}")
+            self.log_panel.write(f"\n\nDEBUG: {message}")
             
         # Start polling in a separate thread
         def poll_thread():

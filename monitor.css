@@ -12,6 +12,7 @@ Screen {
   background: #101010;
   color: lightgreen;
   overflow: auto;
+  text-wrap: wrap;
   scrollbar-gutter: stable;
 }
 
@@ -28,6 +29,7 @@ Screen {
   background: #202020;
   color: cyan;
   overflow: auto;
+  text-wrap: wrap;
 }
 
 #values Static {
