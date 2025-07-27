@@ -3,6 +3,32 @@ import re
 # Example message payload:
 # b'{"pm2.5_cf_1":12.3,"temperature":75.0,"humidity":40.0,"signal":-67}'
 
+def parse_json_to_markdown(json_data: dict) -> str:
+    """
+    Converts JSON data to a Markdown string.
+    """    
+    returnable_markdown = "# Markdown Panel\n\n"
+
+    # Add a nice header with Current AQI, time of last data received, and temperature
+
+    # Try to get AQI, time, and temperature from the JSON data
+    aqi = json_data.get("pm2.5_aqi") or json_data.get("pm2_5_aqi") or json_data.get("pm2_5_aqi_b") or json_data.get("pm2.5_aqi_b")
+    temperature = json_data.get("temperature") or json_data.get("temp") or json_data.get("Temperature")
+    # Try to get a timestamp or datetime
+    time = json_data.get("DateTime") or json_data.get("date") or json_data.get("response_date")
+
+    # Format the header
+    header_lines = []
+    header_lines.append("# PurpleAir Flex Data\n")
+    header_lines.append("**Current AQI:** " + (str(aqi) if aqi is not None else "N/A"))
+    header_lines.append("  |  **Temperature:** " + (f"{temperature}°F" if temperature is not None else "N/A"))
+    header_lines.append("  |  **Last Data Received:** " + (str(time) if time is not None else "N/A"))
+    header_lines.append("\n---\n")
+
+    returnable_markdown += "  ".join(header_lines) + "\n"
+
+    return returnable_markdown
+
 def parse_data(json_data: dict) -> dict:
     """
     Extracts ALL available values from PurpleAir Flex JSON format.
@@ -191,3 +217,4 @@ if __name__ == "__main__":
     }
 
     print(parse_data(sample_json))
+    print(parse_json_to_markdown(sample_json))

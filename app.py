@@ -1,8 +1,9 @@
+from ast import List
 import asyncio
 import threading
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.widgets import Static, Log
+from textual.widgets import Log, ListView, ListItem, Label
 from textual.reactive import reactive
 from textual import work
 from rich.text import Text
@@ -17,23 +18,21 @@ class LogPanel(Log):
         self.write("PurpleAir Monitor Starting...")
         self.write("\n\nWaiting for sensor data...")
 
-class ValuePanel(Static):
+class ValuePanel(ListView):
     """Panel for displaying sensor values"""
     
     values = reactive({})
     
-    def watch_values(self, values: dict) -> None:
+    async def watch_values(self, values: dict) -> None:
         """Called when values change"""
         if not values:
-            self.update("\n\nNo sensor data available")
+            await self.append(ListItem(Label(f"No data to display")))
             return
-            
-        content = "SENSOR VALUES:\n\n"
+        await self.clear()
         for key, value in values.items():
             if value is not None:
-                content += f"{key}: {value}\n"
+                await self.append(ListItem(Label(f"{key}: {value}")))
         
-        self.update(content)
 
 class PurpleAirMonitor(App):
     CSS_PATH = "monitor.css"
@@ -91,7 +90,7 @@ class PurpleAirMonitor(App):
 
     def on_key(self, event):
         """Handle key events"""
-        if event.key == "ctrl+c":
+        if event.key == "q":
             self.running = False
             self.exit()
 

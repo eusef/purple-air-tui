@@ -123,24 +123,6 @@ def poll_sensor(callback: Callable[[dict], None], interval: float = POLL_INTERVA
         print(f"[DEBUG] Waiting {interval} seconds before next attempt...")
         time.sleep(interval)
 
-
-# Example parser for standalone usage
-def extract_core_values(json_data: dict) -> dict:
-    if "error" in json_data:
-        return json_data
-
-    sensor = json_data.get("sensor", {})
-    pm = json_data.get("pm", {})
-    return {
-        "PM2.5": pm.get("pm2.5"),
-        "Temperature": sensor.get("temperature"),
-        "Humidity": sensor.get("humidity"),
-        "VOC": sensor.get("voc"),
-        "RSSI": sensor.get("rssi"),
-        "Uptime": sensor.get("uptime")
-    }
-
-
 # Entry point for standalone testing
 if __name__ == "__main__":
     def print_callback(data):
